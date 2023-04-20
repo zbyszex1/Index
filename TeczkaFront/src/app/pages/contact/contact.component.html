@@ -1,0 +1,45 @@
+
+<!-- Contact Me -->
+<div id="contact" class="container">
+  <h2 class="mt-4 text-center">Masz uwagi? Napisz wiadomość!</h2>
+  <hr>
+  <div class="row py-4">
+    <div class="col-12 p-2">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label for="sender">Autor:</label>
+          <input type="text" formControlName="sender" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.sender.errors }"
+                placeholder="podaj imię i nazwisko lub nick.." />
+            <div *ngIf="submitted && f.sender.errors" class="invalid-feedback">
+              <div *ngIf="f.sender.errors.required">Autor jest wymagany</div>
+              <div *ngIf="f.sender.errors.minlength">Co jmniej 6 znaków</div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Email:</label>
+          <input type="email" formControlName="email" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.email.errors }" 
+            placeholder="format: skrzynka@operator.kraj"/>
+            <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
+              <div *ngIf="f.email.errors.required">Email jest wymagany</div>
+              <div *ngIf="f.email.errors.email">Zły format adresu email</div>
+          </div>
+        </div>
+        <input type="text" formControlName="subject" class="form-control" hidden />
+        <div class="mb-3">
+          <label class="form-label">Treść wiadomości:</label>
+          <!-- <textarea class="form-control" #messageRef="ngModel" [ngModel]="contactForm.message" name="message" rows="12"></textarea> -->
+          <textarea type="text" formControlName="message" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.message.errors }"
+                  placeholder="miejsce na wpisanie treści wiadomości.." rows="10"></textarea>
+          <div *ngIf="submitted && f.message.errors" class="invalid-feedback">
+            <div *ngIf="f.message.errors.required">Treść wiadomości jest wymagana</div>
+            <div *ngIf="f.message.errors.minlength">Co jmniej 12 znaków</div>
+          </div>
+        </div>
+        <br/>
+      <button class="btn btn-primary" [disabled]="processing" type="submit">Wyślij wiadomość</button>
+        <span> </span>
+        <button class="btn btn-secondary" [disabled]="processing" type="reset" (click)="resetForm()">Reset</button>
+      </form>
+    </div>
+  </div>
+</div>

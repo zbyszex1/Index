@@ -1,0 +1,33 @@
+<h1 id="tableLabel1">Teczka users</h1>
+<p>This component demonstrates fetching data from the MySQL server.</p>
+
+<p *ngIf="!users"><em>Loading...</em></p>
+
+<table class='table table-striped' aria-labelledby="tableLabel1" *ngIf="users">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>RoleId</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Temp Password</th>
+      <th>Password Hash</th>
+      <th>Created</th>
+      <th>Updated</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let user of users">
+      <td>{{ user.id }}</td>
+      <td>{{ user.roleId }}</td>
+      <td>{{ user.name }}</td>
+      <td>{{ user.email }}</td>
+      <td>{{ user.phone }}</td>
+      <td>{{ user.tempPassword }}</td>
+      <td>{{ user.passwordHash }}</td>
+      <td>{{ user.created }}</td>
+      <td>{{ user.updated }}</td>
+    </tr>
+  </tbody>
+</table>

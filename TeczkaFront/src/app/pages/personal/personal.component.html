@@ -1,0 +1,37 @@
+<div class="card">
+  <h4 class="card-header">Dane użytkownika</h4>
+  <div class="card-body">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="mb-3">
+              <label class="form-label">Imię i nazwisko</label>
+              <input type="text" formControlName="name" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.name.errors }" />
+              <div *ngIf="submitted && f.name.errors" class="invalid-feedback">
+                  <div *ngIf="f.name.errors.required">Imię i nazwisko są wymagane</div>
+                  <div *ngIf="f.name.errors.minlength">Podaj co najmniej 6 znaków</div>
+              </div>
+          </div>
+          <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="text" formControlName="email" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.email.errors }" />
+              <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
+                  <div *ngIf="f.email.errors.required">Email jest wymagany</div>
+                  <div *ngIf="f.email.errors.email">Zły format adresu email</div>
+              </div>
+          </div>
+          <div class="mb-3">
+              <label class="form-label">Telefon</label>
+              <input type="text" formControlName="phone" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.phone.errors }" />
+              <div *ngIf="submitted && f.phone.errors" class="invalid-feedback">
+                  <div *ngIf="f.phone.errors.required">Telefon jest wymagany</div>
+                  <div *ngIf="f.phone.errors.minlength">Telefon musi mieć co najmiej 9 znaków</div>
+              </div>
+          </div>
+          <div>
+              <button [disabled]="loading" class="btn btn-primary">
+                  <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+                  Zamień
+              </button>
+          </div>
+      </form>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Provide sufficient contrast against white background */
+a {
+  color: saddlebrown;
+}
+
+code {
+  color: #e01a76;
+}
+
+.btn-primary, .btn-primary:active, .btn-primary:visited, .btn-primary:focus {
+  color: white;
+  background-color:teal;
+  border-color: lightseagreen;
+  margin-right: 1rem;;
+}
+
+.btn-primary:hover {
+  background-color:darkgreen;
+}
+
+.btn-secondary {
+  background-color:slategray;
+}
+
+.help-aera {
+  display: grid;
+  grid-template-columns: repeat( 5, 1fr);
+}
+
+/* .help-aera > div {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+} */
+
+.help-image {
+  background-color: transparent;
+  grid-column-start: 1;
+  padding: 10px;
+}
+
+.help-text {
+  background-color: transparent;
+  grid-column-start: 2;
+  grid-column-end: span 3;
+}

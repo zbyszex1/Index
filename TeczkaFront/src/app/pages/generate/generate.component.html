@@ -1,0 +1,35 @@
+<div class="container printable">
+  <h1 id="tableLabel1">Generowanie pliku JSON</h1>
+  <div class="card-body">
+
+    <div class="container">
+      <div class="row">
+        <div class="col-xl">
+          <button class="btn btn-primary" style="margin-left: 1rem;" enabled="!subittedWork" (click)="generate()">
+            <span>Pobierz dane serwera</span>
+          </button>
+          <div *ngIf="dataReady">
+            <label class="form-label">plik JSON:</label>
+            <textarea type="text" class="form-control" rows="10">{{json}}</textarea>
+          </div>
+          <br/>
+        </div>
+        <div class="col-xl">
+          <div *ngIf="dataReady">
+            <div *ngFor="let index of indexes">
+              <b>{{index.name}}</b>
+              <br/>
+              <div *ngFor="let unit of index.units">
+                <span>{{unit.display}}</span>
+              <span *ngFor="let page of unit.pages; let i = index">
+                <span *ngIf="i==0">: </span>
+                <span *ngIf="i>0">, </span>
+                <a [href]="url+unit.path+'/'+fillZeros(page)" target="_blank"><b>{{page}}</b></a>
+              </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  

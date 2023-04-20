@@ -1,0 +1,24 @@
+<div class="container printable">
+    <h4 class="card-header">Serwer</h4>
+    <div class="card-body">
+
+    <p></p>
+    
+    <p *ngIf="!sections"><em>Loading...</em></p>
+    
+    <table class='table table-striped' aria-labelledby="tableLabel1" *ngIf="sections">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let section of sections">
+            <td>{{ section.name }}</td>
+          <td>{{ section.value }}</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+</div>

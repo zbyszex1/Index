@@ -1,0 +1,83 @@
+<div class="card">
+  <h1 id="tableLabel1">Indeksowanie jednej strony</h1>
+  <div class="card-body">
+    <p *ngIf="scans.length==0 || sections.length==0 || persons.length==0"><em>Loading...</em></p>
+    <div class="container">
+      <div class="row">
+        <div class="col-md">
+          <div *ngIf="sectionsReady && pagesReady">
+            <div class="mb-3">
+              <label class="form-label">Sekcje "teczki"</label>
+              <select class="form-control" [ngModel]="sectionSelect" (ngModelChange)="onSection($event)" id="sections">
+                <option *ngFor="let section of sectionSelect" [ngValue]="section.id">{{section.name}}</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Strona w ramach sekcji</label>
+              <select class="form-control" [ngModel]="scansSelected" (ngModelChange)="onPage($event)" id="pages">
+                <option *ngFor="let scan of scansSelected" [ngValue]="scan.id">{{scan.page}}</option>
+              </select>
+            </div>
+          </div>
+          <div style="background-color: rgb(240, 240, 240); padding:15px;">
+            <form [formGroup]="formPerson" (ngSubmit)="onSubmitPerson()">
+              <div class="mb-3">
+                <label class="form-label">Imię(ona)</label>
+                <input type="text" formControlName="first" class="form-control" [(ngModel)]="first"
+                    [ngClass]="{ 'is-invalid': submittedPerson && f.first.errors }" />
+                <div *ngIf="submittedPerson && f.first.errors" class="invalid-feedback">
+                    <div *ngIf="f.first.errors.required">Imię jest wymagane</div>
+                    <div *ngIf="f.first.errors.minlength">Imię musi mieć co najmniej 3 znaki</div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Nazwisko(a)</label>
+                <input type="Text" formControlName="last" class="form-control" [(ngModel)]="last"
+                    [ngClass]="{ 'is-invalid': submittedPerson && f.last.errors }" />
+                <div *ngIf="submittedPerson && f.last.errors" class="invalid-feedback">
+                    <div *ngIf="f.last.errors.required">Nazwisko jest wymagane</div>
+                    <div *ngIf="f.last.errors.minlength">Nazwiako musi mieć co najmniej 3 znaki</div>
+                </div>
+              </div>
+              <button [disabled]="loading" class="btn btn-primary" type="submit">
+                  <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+                  Dodaj
+              </button>
+              <button [disabled]="loading" class="btn btn-secondary" (click)="cancelPerson()" type="reset">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+                Anuluj
+            </button>
+          </form>
+          </div>
+      </div>
+      <div class="col-md">
+        <div *ngIf="personsReady">
+          <div class="mb-3">
+            <label class="form-label">Wszystkie nazwiska z bazy danych</label>
+            <div style="display: flex; flex-direction: row;">
+              <select class="form-control" [ngModel]="personSelect" (ngModelChange)="onPerson($event)" id="persons">
+                <option *ngFor="let person of personSelect" [ngValue]="person.id">{{person.name}}</option>
+              </select>
+              <span> </span>
+              <button class="btn btn-primary" style="margin-left: 1rem;" (click)="setPerson()">
+                <span>✔</span>
+              </button>
+            </div>
+          </div>
+          <div style="background-color: rgb(240, 240, 240); padding:15px;">
+            <div class="mb-3">
+              <label class="form-label">Osoby wymienione na stronie</label>
+              <select class="form-control" [ngModel]="indeksSelect" (ngModelChange)="onIndeks($event)" id="indekes" size="10">
+                <option *ngFor="let indeks of indeksSelect" [ngValue]="indeks.id">{{indeks.name}}</option>
+              </select>
+            </div>
+            <button [disabled]="scans.length==0 || sections.length==0" class="btn btn-primary" (click)="writeIndex()">
+              <span *ngIf="scans.length>0 && sections.length>0" class="spinner-border-sm me-1"></span>
+              Indeksuj stronę {{page}}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>

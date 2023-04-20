@@ -1,0 +1,70 @@
+<div class="container printable">
+  <h2 class="mt-4 text-center">Informacje technczne</h2>
+  <div class="row py-4">
+    <div class="col">
+      <div class="printable"  style="width: 100%;">
+        <p>
+          Każdy użytkownik, który zechce mnie wspomóc w kompletowaniu indeksu nazwisk musi się zarejestrować.
+          To jednorazowa procedura nie wymagająca potwierdzenia. Trzeba tylko zapamietać jakiego adresu email
+          się użyło i jakigo hasła. Wskazane jest też podanie swojego prawdziwego nazwiaka i numeru telefonu.
+          Te dane poza hasłem są zapisane w bazie danych i dostępne wyłącznie dla administratora strony.
+          Hasło jest przesyłane na serwer przez bezpieczne łącze SSL i zapamietywane w bazie danych na serwerze
+          w postaci jednostronnie zaszyfrowanej. Nikt, łącznie z admnistratorem nie ma możliwości podejrzenia tego hasła.
+          Oczywiście podstepny haker po złamaniu zabezpieczeń serwera i dysponując wielka mocą obliczeniową może pokusić
+          się o złamanie hasła, ale podjecie takich prób nie wydaje sie prawdopodobne.
+        </p>
+        <p>
+          Indeksowanie dokonywane przez użytkownika strona po stronie. Serwer automatycznie zapamiętuje kto:
+        </p>
+        <ul>
+          <li>
+            dodał nazwiska osób, których wcześniej w bazie danychnie było,
+          </li>
+          <li>
+            zindeksował stronę <i>teczki</i>,
+          </li>
+          <li>
+            wskazał nazwiska osób wymienionych na stronie <i>teczki</i>.
+          </li>
+        </ul>
+        <p>
+          Przez pojęcie <i>kto</i> rozumiany jest zalogowany użytkownik. Zwykle będzie wolontariusz wspomagający
+          opracowanie materiałów historycznych. Adminstrator ma możliwość weryfikacji wprowadzonych zmian,
+          lub ich modyfikacji. Może sie jednak zdarzyć, że wpisów dokona w złej wierze osoba
+          niestabilna emeocjonalnie. W takim przypadku administrator ma możliwość cofniecia zmian wprowadzonych
+          przez tę osobę i umożliwienia pracy innym wolontariuszom.
+        </p>
+        <p>
+          Użytkownik może po zalogowaniu dodać do bazy danych dowolną ilość nazwisk. Dodane nazwisko od razu zostaje zapisane
+          w bazie danych. Dodanie nazwiska nie przesądza jednak o tym, że występuje ono na jakiejkolwiek stronie.
+          Najlepszą praktką jest dodawanie nazwisk podczas indeksowania strony. Informacja, które nazwiska
+          znajdują się na konkretnej stronie <i>teczki</i> zapisywana jest w bazie danych po nacisnięciu klawisza
+          <b>Indeksuj stronę...</b>. Po tej operacji strona jest usuwana z listy <i>do zrobienia</i>. Inny wolontariusz
+          nie straci czasu na wykonanie tej operacji ponownie.
+        </p>
+        <p>
+          Serwer umożliwia wprowadzanie zmian przez użytkownika po zalogowaniu tylko przez określony czas rzędu 30 minut.
+          Jeżeli w tym czasie użytkownik przerwie pracę i będzie próbował powrócić do niej później - może się okazać,
+          że zostanie wylogowany i indeksowanie konkretnej strony <i>teczki</i> trzeba będzie zacząć od początku.
+          W szczególnie niesprzyjającej sytuacji może się też zdarzyć, że dwóch użytkowników będzie pracowało nad jdeną
+          stroną w tym samym czasie. Wtedy mogą pojawić się nieoczekiwane komunikaty o próbie zdublowania pracy.
+          Właściwie mógłbym rozwiązać te problemy, ale tak na serio nie wierzę, że pojawi się jakikolwiek wolontariusz.
+          Sam będę będę w wolnych chwilach indeksował nazwiska i żadne konflikty się nie pojawią.
+        </p>
+        <p>
+          Aplikacja nie inicjuje zapisywania jakiejkolwiek informacji w plikach cookie. Może to natomiast zrobić na
+          ogólnie przyjętych zasadach przeglądarka internetowa. Użytkownik może zezwolić przeglądarce na zapamietanie
+          loginu i hasła. Może takiego zezwolenia nie wydawać, a jeżeli wydał - w dowolnym momencie może dane
+          logowania skasować. Procedury zależą od przeglądarki i w jej dokumentacji należy szukać szczegółowych informacji.
+        </p>
+        <p>
+          Imię i nazwisko uzytkownika, jego rola w aplkacji oraz token do sesji są natomiast zapisywane w <i>local storage</i>
+          przeglądarki i kasowane w momencie wybrania z menu pozycji <b>Wylogowanie</b>. 
+          Zamknięcie okna przeglądarki, lub karty z otwartą aplikacją nie powoduje automatycznego wylogowania użytkownika.
+          Włączenie przeglądarki po paru minutach i wpisanie adresu https://teczka.men otworzy aplikację z zalogowanym
+          użytkownikiem. Włączenie przeglądarki po dłuższym czasie wymagać będzie ponownego zalogowania.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

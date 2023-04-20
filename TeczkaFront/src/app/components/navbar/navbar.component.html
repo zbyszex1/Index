@@ -1,0 +1,65 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-fixed no-printable">
+  <div class="container">
+<h1 class="{blue: highlight}"></h1>
+    <a class="navbar-brand" routerLink="/">Indeks</a>
+    <button class="navbar-toggler" type="button" (click)="open = !open">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse"
+         [class.show]="open">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" routerLink="/" (click)="refresh()">Start</a>
+        </li>
+        <li *ngIf="loggedIn" class="nav-item">
+          <a class="nav-link" routerLink="/available" (click)="refresh()">Indesuj</a>
+        </li>
+        <li *ngIf="isAdmin" class="nav-item">
+            <a class="nav-link" routerLink="/generate" (click)="refresh()">Generuj JSON</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" id="navbarDropdownU" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" (click)="onDropdownU()">
+            Użytkownik
+          </a>
+          <div class="dropdown-menu" [class.dropdown-show]="ariaU" aria-labelledby="navbarDropdownU">
+              <a *ngIf="!loggedIn" class="dropdown-item" routerLink="/login" (click)="refresh(true)">Logowanie</a>
+              <a *ngIf="loggedIn" class="dropdown-item" routerLink="/" (click)="logout()">Wylogowanie</a>
+              <a *ngIf="loggedIn" class="dropdown-item" routerLink="/personal" (click)="refresh(true)">Zmiana danych</a>
+              <a *ngIf="loggedIn" class="dropdown-item" routerLink="/password" (click)="refresh(true)">Zmiana hasła</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" id="navbarDropdownA" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" (click)="onDropdownA()">
+            Tablice
+          </a>
+          <div class="dropdown-menu" [class.dropdown-show]="ariaA" aria-labelledby="navbarDropdownA">
+            <a *ngIf="isAdmin" class="dropdown-item" routerLink="/get-roles" (click)="refresh()">Get Roles</a>
+            <a *ngIf="isAdmin" class="dropdown-item" routerLink="/get-users" (click)="refresh()">Get Users</a>
+            <div *ngIf="isAdmin" class="dropdown-divider"></div>
+            <a class="dropdown-item" routerLink="/get-articles" (click)="refresh()">Get Articles</a>
+            <a class="dropdown-item" routerLink="/get-sections" (click)="refresh()">Get Sections</a>
+            <a class="dropdown-item" routerLink="/get-persons" (click)="refresh();">Get Persons</a>
+            <a class="dropdown-item" routerLink="/get-scans" (click)="refresh();">GetScans</a>
+            <a class="dropdown-item" routerLink="/get-indexes" (click)="refresh()">Get Indexes</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" routerLink="/fetch-data" (click)="refresh()">Random Data</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" id="navbarDropdownI" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" (click)="onDropdownI()">
+            Informacje
+          </a>
+          <div class="dropdown-menu" [class.dropdown-show]="ariaI" aria-labelledby="navbarDropdownI">
+            <a class="dropdown-item" routerLink="/help" (click)="refresh()">Szczegóły</a>
+            <a class="dropdown-item" routerLink="/contact" (click)="refresh()">Kontakt</a>
+            <a class="dropdown-item" routerLink="/server" (click)="refresh()">Serwer</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

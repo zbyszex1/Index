@@ -1,0 +1,24 @@
+<h1 id="tableLabel1">Teczka Articles</h1>
+
+<p>This component demonstrates fetching data from the MySQL server.</p>
+
+<p *ngIf="!articles"><em>Loading...</em></p>
+
+<table class='table table-striped' aria-labelledby="tableLabel1" *ngIf="articles">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Created</th>
+      <th>Updated</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let article of articles">
+      <td>{{ article.id }}</td>
+      <td>{{ article.name }}</td>
+      <td>{{ article.created }}</td>
+      <td>{{ article.updated }}</td>
+    </tr>
+  </tbody>
+</table>
