@@ -7,8 +7,9 @@ using TeczkaCore.Models;
 
 namespace TeczkaCore.Identity
 {
-    public interface IJwtProvider
-    {
-        public string GenerateJwtToken(User user);
-    }
+  public interface IJwtProvider
+  {
+    public string GenerateJwtToken(User user);
+    public string GenerateRefreshJwtToken(int userId);
+  }
 }

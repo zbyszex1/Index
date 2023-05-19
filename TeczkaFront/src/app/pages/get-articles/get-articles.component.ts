@@ -19,9 +19,8 @@ export class GetArticlesComponent {
     this.articles = null;
     this.alert = alertService;
     this.alert.clear();
-    http.get<Articles[]>(baseUrl + 'api/articles', tokenOptionsService.getOptions())
+    http.get<Articles[]>(baseUrl + 'api/articles')
       .subscribe(result => {
-        console.log(result);
         this.articles = result;
       }, error => {
         console.error(error);

@@ -56,13 +56,11 @@ export class LoginComponent {
         .pipe(first())
         .subscribe({
           next: (result: Token) => {
-            console.log(result);
             const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
             this.router.navigateByUrl(returnUrl);
             this.loading = false;
           },
           error: (error: any) => {
-            console.log(error);
             this.alertService.error(error.error);
             this.loading = false;
           }

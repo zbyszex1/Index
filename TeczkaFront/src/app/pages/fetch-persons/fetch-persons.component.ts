@@ -19,7 +19,6 @@ export class FetchPersonsComponent {
     this.alert.clear();
     http.get<PersonasDetailed[]>(baseUrl + 'api/test/persons')
       .subscribe(result => {
-        console.log(result);
         this.personas = result;
         // this.personas.forEach(element => {
         // });

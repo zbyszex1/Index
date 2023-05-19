@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, TemplateRef, Inject, OnInit, OnDestroy } from '@angular/core';
 import { AlertService } from '@app/services/alert.service';
 import { TokenOptionsService } from '@app/services/token-options.service';
 import { LocalStorageService } from '../../services/local-storage.service';
@@ -10,6 +10,7 @@ import { Person } from '@app/classes/person';
 import { Scan } from '@app/classes/scan';
 import { pipe } from 'rxjs';
 import { first } from 'rxjs/operators';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-available',
@@ -28,6 +29,7 @@ export class AvailableComponent implements OnInit, OnDestroy {
   private alert: AlertService;
   private sectionId: number;
   private scanId: number;
+  public  person: any;
   public  personId: number;
   public  last: string;
   public  first: string;
@@ -47,21 +49,27 @@ export class AvailableComponent implements OnInit, OnDestroy {
   public  loading = false;
   public  submittedPerson: boolean;
   public  addingPerson: boolean;
-
-
+  public  http: HttpClient;
+  public  baseUrl: string;
+  public tokenOptionsService: TokenOptionsService;
+  public modalRef: BsModalRef | undefined;
   constructor(http: HttpClient, 
         @Inject('BASE_URL') baseUrl: string,
+        private modalService: BsModalService,
         private alertService: AlertService,
         private localStorageService: LocalStorageService,
         private indexesService: IndexesService,
         private accountService: AccountService,
-        private tokenOptionsService: TokenOptionsService) {
+        private _tokenOptionsService: TokenOptionsService) {
+    this.http = http;
+    this.baseUrl = baseUrl;
     this.X = 0;
     this.Y = 0;
     this.W = 1024;
     this.H = 512;
     this.sectionId = 0;
     this.scanId = 0;
+    this.person = null;
     this.personId = 0;
     this.last = '';
     this.first = '';
@@ -76,7 +84,6 @@ export class AvailableComponent implements OnInit, OnDestroy {
     this.personSelect = [];
     this.indeksSelect = [];
     this.pageSelect = [];
-    // this.sectionList = [];
     this.idList = [];
     this.page = '';
     this.section = '';
@@ -84,37 +91,24 @@ export class AvailableComponent implements OnInit, OnDestroy {
     this.alert = alertService;
     this.submittedPerson = false;
     this.addingPerson = false;
+    this.tokenOptionsService = _tokenOptionsService;
     this.formPerson = new FormGroup({
       first: new FormControl(),
       last: new FormControl()
     })
     this.alert.clear();
-    http.get<SectionDetailed[]>(baseUrl + 'api/available/sections', this.tokenOptionsService.getOptions())
-      .subscribe(result => {
-        this.sections = result;
-        if (this.scans != null)
-        this.processSS();
-      }, error => {
-        console.error(error);
-        this.alert.error(error.message);
-      });
-      http.get<ScanDetailed[]>(baseUrl + 'api/available/scans', this.tokenOptionsService.getOptions())
-      .subscribe(result => {
-        this.scans = result;
-        if (this.sections != null)
-        this.processSS();
-      }, error => {
-        console.error(error);
-        this.alert.error(error.message);
-      });
-      http.get<PersonDetailed[]>(baseUrl + 'api/available/persons', this.tokenOptionsService.getOptions())
-      .subscribe(result => {
-        this.persons = result;
-        this.processP();
-      }, error => {
-        console.error(error);
-        this.alert.error(error.message);
-      });
+    this.tokenOptionsService.doRefresh(this.http, this.baseUrl)
+    .pipe(first())
+    .subscribe({
+      next: (result: any) => {
+        this.getSections();
+        this.getScans();
+        this.getPersons();
+          },
+      error: (error: any) => {
+        this.alertService.error(error.message);
+      }
+    });
   }
   ngOnInit(): void {
     this.X = this.localStorageService.getNum('winRef_X', 0);
@@ -152,7 +146,7 @@ export class AvailableComponent implements OnInit, OnDestroy {
 
   processP() {
     this.persons?.forEach(person => {
-        this.personSelect.push( { 'id': person.id, 'name': person.last + ' ' +person.first.replace('_', ' ')} );
+        this.personSelect.push( { 'id': person.id, 'name': person.last + ' ' +person.first?.replace('_', ' ')} );
     });
     this.personsReady = true;
   }
@@ -163,7 +157,7 @@ export class AvailableComponent implements OnInit, OnDestroy {
     const section = this.sections?.find(s => s.id == event);
     this.section = section?.name? section?.name : '';
     this.scansSelected = [];
-    while (this.scans[i].sectionId == event) {
+    while (this.scans[i] != null && this.scans[i].sectionId == event) {
       this.scansSelected.push(this.scans[i]);
       i++;
     }
@@ -177,23 +171,28 @@ export class AvailableComponent implements OnInit, OnDestroy {
 
   onPerson(event: any) {
     this.personId = event;
-    console.log(event)
   }
 
   setPerson() {
     const person = this.persons?.find(s => s.id == this.personId);
-    console.log(person)
     if (person != null)
       this.indeksSelect.push( { 'id': person?.id, 'name': person?.last + ' ' +person?.first} );
   }
 
-  onIndeks(event: any) {
-    const person = this.indeksSelect?.find(s => s.id == event);
-    this.page = '';
-    if (person!=null) {
-      const idxs = this.indeksSelect?.indexOf(person);
+  unsetPerson() {
+    if (this.person!=null) {
+      const idxs = this.indeksSelect?.indexOf(this.person);
       this.indeksSelect.splice(idxs,1);
     }
+  }
+
+  onIndeks(event: any) {
+    this.person = this.indeksSelect?.find(s => s.id == event);
+    this.page = '';
+    // if (this.person!=null) {
+    //   const idxs = this.indeksSelect?.indexOf(this.person);
+    //   this.indeksSelect.splice(idxs,1);
+    // }
   }
 
   openSkan() {
@@ -218,6 +217,40 @@ export class AvailableComponent implements OnInit, OnDestroy {
     }
   }
 
+  getSections() {
+    this.http.get<SectionDetailed[]>(this.baseUrl + 'api/available/sections')
+    .subscribe(result => {
+      this.sections = result;
+      if (this.scans != null)
+      this.processSS();
+    }, error => {
+      console.error(error);
+      this.alert.error(error.message);
+    });
+  }
+
+  getScans() {
+    this.http.get<ScanDetailed[]>(this.baseUrl + 'api/available/scans')
+    .subscribe(result => {
+      this.scans = result;
+      if (this.sections != null)
+      this.processSS();
+    }, error => {
+      console.error(error);
+      this.alert.error(error.message);
+    });
+  }
+
+  getPersons() {
+    this.http.get<PersonDetailed[]>(this.baseUrl + 'api/available/persons')
+    .subscribe(result => {
+      this.persons = result;
+      this.processP();
+    }, error => {
+      console.error(error);
+      this.alert.error(error.message);
+    });
+}
   // convenience getter for easy access to formPerson fields
   get f() {
     return this.formPerson.controls; 
@@ -227,15 +260,34 @@ export class AvailableComponent implements OnInit, OnDestroy {
     this.addingPerson = true;
   }
 
+  newPerson(template: TemplateRef<any>): any {
+    this.modalRef = this.modalService.show(template);
+  }
+
   cancelPerson(): any {
     this.first = '';
     this.last = '';
     setTimeout(() => {
       this.addingPerson = false;
     },500)
+    this.modalRef?.hide();
   }
 
   onSubmitPerson() {
+    this.tokenOptionsService.doRefresh(this.http, this.baseUrl)
+    .pipe(first())
+    .subscribe({
+      next: (result: any) => {
+        this.doSubmitPerson();
+      },
+      error: (error: any) => {
+        this.alertService.error(error.message);
+      }
+    });
+    this.modalRef?.hide();
+  };
+
+  doSubmitPerson() {
     this.submittedPerson = true;
     this.alertService.clear();
     if (this.formPerson.invalid) {
@@ -248,7 +300,6 @@ export class AvailableComponent implements OnInit, OnDestroy {
           this.first = '';
           this.last = '';
           this.addingPerson = false;
-          console.log(result)
           this.insertPerson(result);
         },
         error: (error: any) => {
@@ -272,6 +323,8 @@ export class AvailableComponent implements OnInit, OnDestroy {
         }
       }
       this.indeksSelect.push( object );
+      const personDetailed = {'id': person.id!=null ? person.id : 0, 'last': person.last, 'first': person.first};
+      this.persons.push(personDetailed);
     }
 
     writeIndex(): any {
@@ -345,8 +398,8 @@ interface ScanDetailed {
 
 interface PersonDetailed {
   id: number;
-  last: string;
-  first: string;
+  last?: string;
+  first?: string;
 }
 
 interface SectionSelect {

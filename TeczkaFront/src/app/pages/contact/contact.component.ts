@@ -64,9 +64,7 @@ export class ContactComponent {
     }
 
     this.loading = true;
-    console.log(this.form.value);
     this.processing = true;
-      console.log(this.baseUrl + 'api/available/email')
       this.http?.post<any>( this.baseUrl + 'api/available/email',  this.form.value)
         .subscribe({
           next: (project) => {

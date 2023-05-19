@@ -1,32 +1,31 @@
 import { Injectable } from '@angular/core';
 import { LocalStorageService } from '@app/services/local-storage.service';
-import { HttpHeaders } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, Subject, map, of, range, tap } from 'rxjs';
 import { Token, UserToken } from '@app/classes/user-token';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class TokenOptionsService {
 
   private jwtService: JwtHelperService = new JwtHelperService();
   private subject = new Subject<Token>();
-  private defaultName = '';
-
   public name: string | undefined | null;
   public userId: number;
   public role: string | undefined | null;
   public token: string | undefined | null;
-
+  public refreshToken: string | undefined | null;
   constructor(
-    private localStorageService: LocalStorageService
-  ) {
+    private localStorageService: LocalStorageService) {
     this.name = 'unknown';
     this.userId = 0;
     this.role = 'unknown';
     this.token = 'empty';
+    this.refreshToken = 'empty';
+    this.getAll();
   }
 
   onToken(): Observable<Token> {
@@ -44,7 +43,7 @@ export class TokenOptionsService {
   }
 
   getToken(): string {
-    this.token = this.localStorageService.get('token');
+    this.token = this.localStorageService.get('jwtToken');
     return this.token != null ? this.token : '';
   }
 
@@ -58,13 +57,21 @@ export class TokenOptionsService {
     return this.userId;
   }
 
-  getRole() {
+  getRole(): string {
     this.role = this.localStorageService.get('role');
     return this.role != null ? this.role : '';
   }
 
+  getRefreshToken(): string {
+    this.refreshToken = this.localStorageService.get('refreshToken');
+    return this.refreshToken != null ? this.refreshToken : '';
+  }
+
   isLoggedIn(): boolean {
-    return this.getToken().length > 0;
+    if (this.getToken().length == 0 || this.getRefreshToken().length == 0) {
+      return false;
+    }
+    return !this.isExpiredRefresh();
   }
 
   isAdmin(): boolean {
@@ -83,30 +90,47 @@ export class TokenOptionsService {
     return this.getRole().toLowerCase() == 'reader';
   }
 
-  isExpired(): boolean {
-    let expires: number = this.localStorageService.getNum('expires');
+  isExpiredJwt(): boolean {
+    let expires: number = this.localStorageService.getNum('expiresJwt');
     if (expires <= 0) {
-      console.log('expired');
       return true;
     }
     expires *= 1000;
-    let expiresN = new Date(expires)
-    const now: number = Date.now();
-    const delta = expires - now;
-    console.log('delta: ' + delta)
-    return delta < 5000;
+    const delta = expires - Date.now();
+    console.log(delta);
+    return delta < 0;
+  }
+
+  isExpiredRefresh(): boolean {
+    let expires: number = this.localStorageService.getNum('expiresRefresh');
+    if (expires <= 0) {
+      return true;
+    }
+    expires *= 1000;
+    const delta = expires - Date.now();
+    return delta < 0;
+  }
+
+  getAll() {
+    this.getToken();
+    this.getRefreshToken();
+    this.getUser();
+    this.getUserId();
+    this.getRole();
+    this.subject.next(new Token());
   }
 
   setAll(token: Token) {
-    this.subject.next(token);
     this.decodeToken(token);
+    this.subject.next(token);
   }
 
   decodeToken(token: Token) {
-    this.localStorageService.set('token', token.serverToken);
-    var userInfo = this.jwtService.decodeToken(token.serverToken);
+    this.localStorageService.set('jwtToken', token.jwtToken);
+    this.localStorageService.set('refreshToken', token.refreshToken);
+    var userInfo = this.jwtService.decodeToken(token.jwtToken);
     const userToken = new UserToken();
-    userToken.token = token.serverToken;
+    userToken.token = token.jwtToken;
     for (let key of Object.keys(userInfo)) {
       const val = userInfo[key];
       if (key.endsWith('claims/nameidentifier')) {
@@ -128,27 +152,49 @@ export class TokenOptionsService {
         userToken.role = val;
       }
       if (key.endsWith('exp')) {
-        this.localStorageService.setNum('expires', val);
+        this.localStorageService.setNum('expiresJwt', val);
       }
     }
-    // console.log(this.localStorageService.getNum('userId'));
-    // console.log(this.localStorageService.get('name'));
-    // console.log(this.localStorageService.get('email'));
-    // console.log(this.localStorageService.get('phone'));
-    // console.log(this.localStorageService.get('role'));
-    console.log(this.localStorageService.getNum('expires'));
-    this.localStorageService.set('userToken', JSON.stringify(userToken));
-    this.isExpired();
+    var refreshInfo = this.jwtService.decodeToken(token.refreshToken);
+    for (let key of Object.keys(refreshInfo)) {
+      const val = refreshInfo[key];
+      if (key.endsWith('exp')) {
+        this.localStorageService.setNum('expiresRefresh', val);
+      }
+    }
+    // this.isExpiredJwt();
+    console.log(this.localStorageService.get('name'));
   }
 
   clear() {
-    this.localStorageService.remove('token');
+    this.localStorageService.remove('jwtToken');
+    this.localStorageService.remove('refreshToken');
     this.localStorageService.remove('name');
     this.localStorageService.remove('userId');
     this.localStorageService.remove('role');
     this.localStorageService.remove('email');
     this.localStorageService.remove('phone');
-    this.localStorageService.remove('expires');
-    // console.log('clear()');
+    this.localStorageService.remove('expiresJwr');
+    this.localStorageService.remove('expiresRefresh');
+    this.subject.next(new Token());
   }
+
+  doRefresh(http: HttpClient, baseUrl: string) {
+    if (!this.isExpiredJwt()) {
+      console.log('not expired')
+      return of({});
+    }
+    const refreshToken = this.getRefreshToken();
+    const userId = this.getUserId();
+    const token = {refreshToken: refreshToken, userId: userId };
+    return http.post<Token>(baseUrl + 'api/account/refresh', token)
+      .pipe(
+        map(result => {
+          this.setAll(result);
+          console.log('tokenOptionsService.doneRefresh()')
+          return result;
+        })
+      )
+  }
+
 }

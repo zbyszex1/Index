@@ -20,23 +20,28 @@ export class NavbarComponent implements OnInit, OnDestroy {
     ) {
     this.open = false;    
     this.ariaA = false;
+    this.ariaE = false;
     this.ariaU = false;
     this.ariaI = false;
     this.loggedIn = false;
     this.isAdmin = false;
     this.variable = "abs";
     this.emptys = [];
-    const expired = tokenOptionsService.isExpired();
+    // this.tokenOptionsService.getAll();
+    this.loggedIn = tokenOptionsService.isLoggedIn();
+    this.isAdmin = tokenOptionsService.isAdmin();
+    const expired = tokenOptionsService.isExpiredRefresh();
     if (expired) {
+      console.log('** NavbarComponent.expired **')
       this.accountService.logout(); 
-    } else {
-      http.get<any[]>(baseUrl + 'api/available/test', tokenOptionsService.getOptions())
-        .subscribe(result => {
-          tokenOptionsService.getUser();
-          tokenOptionsService.getRole();
-        }, error => {
-          this.accountService.logout(); 
-        });
+    // } else {
+    //   http.get<any[]>(baseUrl + 'api/available/test', tokenOptionsService.getOptions())
+    //     .subscribe(result => {
+    //       tokenOptionsService.getUser();
+    //       tokenOptionsService.getRole();
+    //     }, error => {
+    //       this.accountService.logout(); 
+    //     });
     }
   }
 
@@ -45,6 +50,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   tokenSubscription!: Subscription;
   open: boolean;
   ariaA: boolean;
+  ariaE: boolean;
   ariaU: boolean;
   ariaI: boolean;
   loggedIn: boolean;
@@ -56,6 +62,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.tokenSubscription = this.tokenOptionsService.onToken()
     .subscribe(token => {
+      console.log('token changed!');
+      console.log(token);
       setTimeout( () => {
         this.loginState();
       },250)
@@ -63,12 +71,21 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    console.log('end of token subscrition')
     this.tokenSubscription.unsubscribe();
     this.tokenOptionsService.clear();
   }
 
   onDropdownA(): void {
     this.ariaA = !this.ariaA;
+    this.ariaE = false;
+    this.ariaU = false;
+    this.ariaI = false;
+  }
+
+  onDropdownE(): void {
+    this.ariaE = !this.ariaE;
+    this.ariaA = false;
     this.ariaU = false;
     this.ariaI = false;
   }
@@ -76,12 +93,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
   onDropdownU(): void {
     this.ariaU = !this.ariaU;
     this.ariaA = false;
+    this.ariaE = false;
     this.ariaI = false;
   }
 
   onDropdownI(): void {
     this.ariaI = !this.ariaI;
     this.ariaA = false;
+    this.ariaE = false;
     this.ariaU = false;
   }
 
@@ -96,12 +115,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
   refresh(delay=false) {
     this.open = false;
     this.ariaA = false;
+    this.ariaE = false;
     this.ariaU = false;
     this.ariaI = false;
   }
 
   loginState() {
-    this.tokenOptionsService.isExpired();
+    this.tokenOptionsService.isExpiredRefresh();
     this.name = this.tokenOptionsService.getUser();
     this.loggedIn = this.tokenOptionsService.isLoggedIn();
     this.isAdmin = this.tokenOptionsService.isAdmin();

@@ -45,18 +45,14 @@ export class RegisterComponent implements OnInit {
         }
 
         this.loading = true;
-        console.log(this.form.value);
         this.accountService.register(this.form.value) 
         .pipe(first())
         .subscribe({
           next: (result: any) => {
-            // get return url from query parameters or default to home page
-            console.log(result);
             const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
             this.router.navigateByUrl(returnUrl);
           },
           error: (error: any) => {
-            console.log(error);
             this.alertService.error(error.message);
             this.loading = false;
           }

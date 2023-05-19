@@ -57,6 +57,14 @@ namespace TeczkaCore.Controllers
     {
       switch (table)
       {
+        case "classes":
+          var classes = _teczkacoreContext.Classes;
+          if (classes == null)
+          {
+            return BadRequest("Fail access to 'Classes' table");
+          }
+          return Ok(classes.ToArray());
+          //break;
         case "scans":
           var scans = _teczkacoreContext.Scans.Where(s => s.Done == false);
           if (scans == null)
@@ -64,7 +72,7 @@ namespace TeczkaCore.Controllers
             return BadRequest("Fail access to 'Scan' table");
           }
           return Ok(scans.ToArray());
-          break;
+          //break;
         case "sections":
           var sections = _teczkacoreContext.Sections.OrderBy(s =>s.Name);
           if (sections == null)
@@ -72,7 +80,7 @@ namespace TeczkaCore.Controllers
             return BadRequest("Fail access to 'Section' table");
           }
           return Ok(sections.ToArray());
-          break;
+          //break;
         case "persons":
           var persons = _teczkacoreContext.Persons;
           if (persons == null)
@@ -80,11 +88,11 @@ namespace TeczkaCore.Controllers
             return BadRequest("Fail access to 'Person' table");
           }
           return Ok(persons.OrderBy(p => p.Last).ThenBy(p => p.First).ToArray());
-          break;
+          //break;
         case "test":
           object[] result = { };
           return Ok(result);
-          break;
+          //break;
         default:
           break;
       }

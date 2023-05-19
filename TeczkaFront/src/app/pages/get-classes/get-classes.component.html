@@ -1,0 +1,25 @@
+<div class="container printable">
+  <h1 id="tableLabel1">Teczka: Classes</h1>
+  <p>Przeglądanie tablic bazy danych MySQL</p>
+  <p *ngIf="!classes"><em>Loading...</em></p>
+
+  <table class='table table-striped' aria-labelledby="tableLabel1" *ngIf="classes">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Level</th>
+        <th>Created</th>
+        <th>Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let class of classes">
+        <td>{{ class.id }}</td>
+        <td>{{ class.name }}</td>
+        <td>{{ class.created }}</td>
+        <td>{{ class.updated }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

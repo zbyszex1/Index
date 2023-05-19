@@ -1,27 +1,48 @@
-<h1 id="tableLabel1">Teczka Scans</h1>
-<p>This component demonstrates fetching data from the MySQL server.</p>
+<div class="container printable">
+  <h1 id="tableLabel1">Teczka: Scans</h1>
+  <p>Przeglądanie tablic bazy danych MySQL</p>
 
-<p *ngIf="!scans"><em>Loading...</em></p>
+  <p *ngIf="!scans"><em>Loading...</em></p>
 
-<table class='table table-striped' aria-labelledby="tableLabel1" *ngIf="scans">
-  <thead>
-    <tr>
-      <th>Id</th>
-      <th>SectionId</th>
-      <th>UserId</th>
-      <th>Page</th>
-      <th>Created</th>
-      <th>Updated</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let scan of scans">
-      <td>{{ scan.id }}</td>
-      <td>{{ scan.sectionId }}</td>
-      <td>{{ scan.userId }}</td>
-      <td>{{ scan.page }}</td>
-      <td>{{ scan.created }}</td>
-      <td>{{ scan.updated }}</td>
-    </tr>
-  </tbody>
-</table>
+  <div class="input-group mb-3">
+    <pagination-controls
+      previousLabel=""
+      nextLabel=""
+      (pageChange)="handlePageChange($event)">
+    </pagination-controls>
+    <div style="margin-left:30px;">
+      Ilość wierszy na stronie:
+      <select (change)="handlePageSizeChange($event)">
+        <option *ngFor="let size of pageSizes" [ngValue]="size">
+          {{ size }}
+        </option>
+      </select>
+    </div>
+    <div style="margin-left:30px;">
+      Ilość rekordów: {{ count }}
+    </div>
+  <!-- responsive="true" -->
+  <table class='table table-striped' aria-labelledby="tableLabel1" *ngIf="scans">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Section</th>
+        <th>UserId</th>
+        <th>Page</th>
+        <th>Created</th>
+        <th>Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let scan of scans  | paginate: {
+        itemsPerPage: pageSize, currentPage: page, totalItems: count }">
+        <td>{{ scan.id }}</td>
+        <td>{{ scan.section }}</td>
+        <td>{{ scan.userId }}</td>
+        <td>{{ scan.page }}</td>
+        <td>{{ scan.created }}</td>
+        <td>{{ scan.updated }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

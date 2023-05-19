@@ -54,18 +54,15 @@ export class PersonalComponent implements OnInit, OnDestroy {
       }
 
       this.loading = true;
-      console.log(this.form.value);
       this.accountService.personal(this.form.value) 
       .pipe(first())
       .subscribe({
         next: (result: any) => {
-          console.log(result);
           this.tokenOptionsService.setAll(result);
           const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
           this.router.navigateByUrl(returnUrl);
         },
         error: (error: any) => {
-          console.log(error);
           this.alertService.error(error.message);
           this.loading = false;
         }

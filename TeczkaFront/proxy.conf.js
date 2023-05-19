@@ -11,12 +11,14 @@ const PROXY_CONFIG = [
   {
     context: [
       "/api/roles",
+      "/api/classes",
       "/api/users",
       "/api/password",
       "/api/personal",
       "/api/articles",
       "/api/sections",
       "/api/persons",
+      // "/api/persons/2",
       "/api/scans",
       "/api/indexes",
       "/api/weatherforecast",
@@ -30,6 +32,7 @@ const PROXY_CONFIG = [
       "/api/available/sections",
       "/api/available/persons",
       "/api/available/test",
+      "/api/classificate",
       "/api/generate",
       "/api/server",
       "/api/test",

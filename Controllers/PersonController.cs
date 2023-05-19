@@ -3,6 +3,8 @@ using TeczkaCore.Models;
 using TeczkaCore.Models.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using TeczkaCore.Entities;
+using System.Linq;
 
 namespace TeczkaCore.Controllers
 {
@@ -30,12 +32,58 @@ namespace TeczkaCore.Controllers
     {
       try
       {
-        var persons = _teczkacoreContext.Persons;
-        if (persons == null)
-        {
-          return BadRequest("Fail access to 'Person' table");
-        }
-        return Ok(persons.ToArray());
+        var persons = _teczkacoreContext.Classes.Join(
+          inner: _teczkacoreContext.Persons,
+          outerKeySelector: Class => Class.Id,
+          innerKeySelector: Person => Person.ClassId,
+          resultSelector: (c, p) =>
+          new { p.Id, p.Last, p.First, p.UserId, ClassName = c.Name, p.Created, p.Updated }
+        ).AsEnumerable().OrderBy(c => c.ClassName).ThenBy(p => p.Last).ThenBy(p => p.First);
+        return Ok(persons.ToList());
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(ex.Message);
+      }
+    }
+
+    [HttpGet("cnt")]
+    [AllowAnonymous]
+    public ActionResult Get(Boolean any)
+    {
+      try
+      {
+        int count = _teczkacoreContext.Persons.Count();
+
+        return Ok(count);
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(ex.Message);
+      }
+    }
+
+    [HttpGet("pg")]
+    [AllowAnonymous]
+    public ActionResult<List<Person>> Get(string? filter, int Page, int PageSize)
+    {
+      try
+      {
+        var persons = _teczkacoreContext.Classes.Join(
+          inner: _teczkacoreContext.Persons,
+          outerKeySelector: Class => Class.Id,
+          innerKeySelector: Person => Person.ClassId,
+          resultSelector: (c, p) =>
+          new { p.Id, p.Last, p.First, p.UserId, Class = c.Name, p.Created, p.Updated }
+        )
+        .Where(p=> filter!=null ? (p.Last.Contains(filter) || p.First.Contains(filter)) :true)
+        .AsEnumerable()
+        .OrderBy(p => p.Last)
+        .ThenBy(p => p.First)
+        .Skip(Page * PageSize)
+        .Take(PageSize);
+        
+        return Ok(persons.ToList());
       }
       catch (Exception ex)
       {
@@ -59,20 +107,22 @@ namespace TeczkaCore.Controllers
 
     [HttpPost]
     [Authorize(Roles = "Admin,Reader,Writer,Superviser")]
-    public ActionResult Post([FromBody] Person person)
+    public ActionResult Post([FromBody] PersonCreate personCreate)
     {
-      person.Last = person.Last.Trim();
-      person.First = person.First.Trim();
+      Person person = new Person();
+      personCreate.Last = personCreate.Last.Replace('-', ' ');
+      personCreate.First = personCreate.First.Replace(' ', '_');
+      person.Last = personCreate.Last.Trim();
+      person.First = personCreate.First.Trim();
       if (!ModelState.IsValid || person.Last.Length<3 || person.First.Length<3)
       {
         return BadRequest(ModelState);
       }
 
-      person.Last = person.Last.Replace('-', ' ');
-      person.First = person.First.Replace(' ', '_');
       string userStr = User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
       int userId = int.Parse(userStr);
       person.UserId = userId;
+      person.ClassId = 1;
       try
       {
         _teczkacoreContext.Persons.Add(person);
@@ -86,7 +136,8 @@ namespace TeczkaCore.Controllers
     }
 
     [HttpPut("{id}")]
-    public ActionResult Put(int id, [FromBody] Person _person)
+    [Authorize(Roles = "Admin,Superviser")]
+    public ActionResult Put(int id, [FromBody] PersonUpdate _person)
     {
       var person = _teczkacoreContext.Persons
           .FirstOrDefault(p => p.Id == id);
@@ -101,9 +152,21 @@ namespace TeczkaCore.Controllers
         return BadRequest(ModelState);
       }
 
-      person.Last = _person.Last;
-      person.First = _person.First;
-
+      if (_person.Last != null)
+      {
+        person.Last = _person.Last;
+      }
+      if (_person.First != null)
+      {
+        person.First = _person.First;
+      }
+      if (_person.ClassId != 0)
+      {
+        person.ClassId = _person.ClassId;
+      }
+      string userStr = User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+      int userId = int.Parse(userStr);
+      person.UserId = userId;
       _teczkacoreContext.SaveChanges();
 
       return NoContent();

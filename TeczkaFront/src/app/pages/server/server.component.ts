@@ -19,7 +19,6 @@ export class ServerComponent {
     this.alert.clear();
     http.get<ServerDetailed[]>(baseUrl + 'api/server')
       .subscribe(result => {
-        console.log(result);
         this.sections = result;
       }, error => {
         console.error(error);

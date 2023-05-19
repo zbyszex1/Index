@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { AlertService } from '@app/services/alert.service';
 import { IndexesService } from '@app/services/indexes.service';
+import { TokenOptionsService } from '@app/services/token-options.service';
 import { first } from 'rxjs/operators';
 
 @Component({
@@ -11,17 +12,24 @@ import { first } from 'rxjs/operators';
 })
 export class GenerateComponent {
 
+  public tokenOptionsService: TokenOptionsService;
   public submittedWork: boolean;
   public url: string;
   public html: string;
   public json: string;
   public dataReady: boolean;
   public indexes: Index[];
+  public http: HttpClient;
+  public baseUrl: string;
 
-  constructor(http: HttpClient, 
-      private alertService: AlertService,
+  constructor(_http: HttpClient, 
+    @Inject('BASE_URL') _baseUrl: string,
+    private alertService: AlertService,
       private indexesService: IndexesService,
-  ) {
+      _tokenOptionsService: TokenOptionsService) {
+    this.tokenOptionsService = _tokenOptionsService;
+    this.http = _http;
+    this.baseUrl = _baseUrl;
     this.submittedWork = false;
     this.dataReady = false;
     this.url = 'https://teczka.sarata.pl/';
@@ -31,6 +39,19 @@ export class GenerateComponent {
   }
   
   generate() {
+    this.tokenOptionsService.doRefresh(this.http, this.baseUrl)
+    .pipe(first())
+    .subscribe({
+      next: (result: any) => {
+        this.doGenerate();
+      },
+      error: (error: any) => {
+        this.alertService.error(error.message);
+      }
+    });
+  };
+
+  doGenerate() {
     this.dataReady = false;
     this.submittedWork = true;
     this.alertService.clear();

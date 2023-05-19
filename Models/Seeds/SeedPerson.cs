@@ -69,7 +69,7 @@ namespace TeczkaCore.Models.Seeds
               {
                 last = line;
               }
-              Person person = new Person(last, first, 1);
+              Person person = new Person(last, first, 1, 1);
               context.Persons.Add(person);
               context.SaveChanges();
               int personId = person.Id;

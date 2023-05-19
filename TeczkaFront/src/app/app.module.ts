@@ -1,8 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { Inject, Injectable, NgModule, isDevMode } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
+import { HttpClient, HttpClientModule, HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module'; 
 import { LoginActivate } from './classes/login-activate'
 import { AdminActivate } from './classes/admin-activate'
@@ -15,7 +14,6 @@ import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { AlertComponent } from './components/alert/alert.component';
 
-
 import { GetRolesComponent } from './pages/get-roles/get-roles.component';
 import { GetUsersComponent } from './pages/get-users/get-users.component';
 import { GetArticlesComponent } from './pages/get-articles/get-articles.component';
@@ -25,7 +23,6 @@ import { GetIndexesComponent } from './pages/get-indexes/get-indexes.component';
 import { GetScansComponent } from './pages/get-scans/get-scans.component';
 import { AvailableComponent } from './pages/available/available.component';
 
-import { CounterComponent } from './pages/counter/counter.component';
 import { FetchDataComponent } from './pages/fetch-data/fetch-data.component';
 import { FetchPersonsComponent } from './pages/fetch-persons/fetch-persons.component';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -39,9 +36,69 @@ import { PersonalComponent } from './pages/personal/personal.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { HelpComponent } from './pages/help/help.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
-import { HashLocationStrategy, LocationStrategy, PathLocationStrategy } from '@angular/common';
 import { ServerComponent } from './pages/server/server.component';
 import { GenerateComponent } from './pages/generate/generate.component';
+import { GetClassesComponent } from './pages/get-classes/get-classes.component';
+import { ClassesComponent } from './pages/classes/classes.component';
+
+import { JwtModule, JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
+import { Observable } from 'rxjs';
+import { ModalModule } from 'ngx-bootstrap/modal';
+import { NgxPaginationModule } from 'ngx-pagination';
+
+
+export function jwtOptionsFactory(http: HttpClient) {
+  const domain = isDevMode() ? 'localhost:44440' : 'teczka.men';
+  return {
+    tokenGetter: () => {
+      return localStorage.getItem('jwtToken');
+    },
+    allowedDomains: [domain],
+    disallowedRoutes: [
+      domain + '/api/account/login',
+      domain + '/api/account/register',
+      domain + '/api/account/refresh',
+      domain + '/api/roles',
+      domain + '/api/articles',
+      domain + '/api/sections',
+      domain + '/api/classes',
+      // domain + '/api/persons',
+      domain + '/api/scans',
+      domain + '/api/indexes',
+      domain + '/api/weatherforecast',
+    ]
+  }
+}
+
+@Injectable()
+export class JwtInterceptor implements HttpInterceptor {
+  baseUrl: string;
+  constructor(private jwtHelper: JwtHelperService,
+    private http: HttpClient,
+    private alertService: AlertService,
+    private localStorageService: LocalStorageService,
+    private tokenOptionsService: TokenOptionsService,
+    @Inject('BASE_URL') _baseUrl: string,
+  ) {
+    this.baseUrl = _baseUrl;
+  }
+
+  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const token = localStorage.getItem('jwtToken');
+    if (token && !this.jwtHelper.isTokenExpired(token)) {
+      console.log('token OK.')
+      request = request.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+    // } else {
+    //   console.log('** Token Expired **')
+    }
+
+    return next.handle(request);
+  }
+}
 
 @NgModule({
   declarations: [
@@ -69,7 +126,9 @@ import { GenerateComponent } from './pages/generate/generate.component';
     FetchPersonsComponent,
     PageNotFoundComponent,
     ServerComponent,
-    GenerateComponent
+    GenerateComponent,
+    GetClassesComponent,
+    ClassesComponent,
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -78,28 +137,15 @@ import { GenerateComponent } from './pages/generate/generate.component';
     FormsModule,
     ReactiveFormsModule,
     AppRoutingModule,
-    // RouterModule.forRoot([
-    //   { path: '', component: HomeComponent, pathMatch: 'full' },
-    //   { path: 'login', component: LoginComponent, pathMatch: 'full' },
-    //   { path: 'register', component: RegisterComponent },
-    //   { path: 'personal', component: PersonalComponent, canActivate:[LoginActivate] },
-    //   { path: 'password', component: PasswordComponent, canActivate:[LoginActivate] },
-    //   { path: 'help', component: HelpComponent },
-    //   { path: 'contact', component: ContactComponent },
-    //   { path: 'get-available', component: AvailableComponent, canActivate:[LoginActivate] },
-    //   { path: 'get-roles', component: GetRolesComponent, canActivate:[AdminActivate] },
-    //   { path: 'get-users', component: GetUsersComponent, canActivate:[AdminActivate] },
-    //   { path: 'get-articles', component: GetArticlesComponent, canActivate:[AdminActivate] },
-    //   { path: 'get-sections', component: GetSectionsComponent, canActivate:[AdminActivate] },
-    //   { path: 'get-persons', component: GetPersonsComponent, canActivate:[AdminActivate] },
-    //   { path: 'get-scans', component: GetScansComponent, canActivate:[AdminActivate] },
-    //   { path: 'get-indexes', component: GetIndexesComponent, canActivate:[AdminActivate] },
-    //   { path: 'fetch-data', component: FetchDataComponent, canActivate:[AdminActivate] },
-    //   { path: 'fetch-persons', component: FetchPersonsComponent, canActivate:[AdminActivate] },
-    //   { path: 'counter', component: CounterComponent },
-    //   { path: 'page-not-found', component: PageNotFoundComponent },
-    //   { path: '**', component: PageNotFoundComponent }
-    // ])
+    ModalModule.forRoot(),
+    JwtModule.forRoot({
+      jwtOptionsProvider: {
+        provide: JWT_OPTIONS,
+        useFactory: jwtOptionsFactory,
+        deps: [HttpClient]
+      }
+    }),
+    NgxPaginationModule
   ],
   providers: [
     LocalStorageService,
@@ -109,6 +155,10 @@ import { GenerateComponent } from './pages/generate/generate.component';
     IndexesService,
     LoginActivate,
     AdminActivate,
+    { provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptor, 
+      multi: true
+    }
     // { provide: LocationStrategy, 
     //   // useClass: HashLocationStrategy
     //   useClass: PathLocationStrategy
@@ -118,3 +168,4 @@ import { GenerateComponent } from './pages/generate/generate.component';
 })
 export class AppModule { 
 }
+

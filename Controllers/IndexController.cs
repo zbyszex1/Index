@@ -40,6 +40,46 @@ namespace TeczkaCore.Controllers
       }
     }
 
+    [HttpGet("cnt")]
+    [AllowAnonymous]
+    public ActionResult Get(Boolean any)
+    {
+      try
+      {
+        int count = _teczkacoreContext.Indexes.Count();
+
+        return Ok(count);
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(ex.Message);
+      }
+    }
+
+    [HttpGet("pg")]
+    [AllowAnonymous]
+    public ActionResult<List<Index>> Get(int Page, int PageSize)
+    {
+      try
+      {
+        var indexes = _teczkacoreContext.Indexes
+        .AsEnumerable()
+        .OrderBy(i => i.ScanId)
+        .Skip(Page * PageSize)
+        .Take(PageSize);
+
+        if (indexes == null)
+        {
+          return BadRequest("Fail access to 'Index' table");
+        }
+        return Ok(indexes.ToArray());
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(ex.Message);
+      }
+    }
+
     [HttpGet("{id}")]
     public ActionResult<Models.Indeks> Get(int id)
     {

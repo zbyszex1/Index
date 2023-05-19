@@ -1,32 +1,32 @@
-<h1 id="tableLabel1">Teczka sections</h1>
+<div class="container printable">
+  <h1 id="tableLabel1">Teczka: sections</h1>
+  <p>Przeglądanie tablic bazy danych MySQL</p>
+  <p *ngIf="!sections"><em>Loading...</em></p>
 
-<p>This component demonstrates fetching data from the MySQL server.</p>
-
-<p *ngIf="!sections"><em>Loading...</em></p>
-
-<table class='table table-striped' aria-labelledby="tableLabel1" *ngIf="sections">
-  <thead>
-    <tr>
-      <th>Id</th>
-      <th>ArticleId</th>
-      <th>Name</th>
-      <th>Pdf</th>
-      <th>Offset</th>
-      <th>Count</th>
-      <th>Created</th>
-      <th>Updated</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let section of sections">
-      <td>{{ section.id }}</td>
-      <td>{{ section.routeId }}</td>
-      <td>{{ section.name }}</td>
-      <td>{{ section.pdf }}</td>
-      <td>{{ section.offset }}</td>
-      <td>{{ section.max }}</td>
-      <td>{{ section.created }}</td>
-      <td>{{ section.updated }}</td>
-    </tr>
-  </tbody>
-</table>
+  <table class='table table-striped' aria-labelledby="tableLabel1" *ngIf="sections">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>ArticleId</th>
+        <th>Name</th>
+        <th>Pdf</th>
+        <th>Offset</th>
+        <th>Count</th>
+        <th>Created</th>
+        <th>Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let section of sections">
+        <td>{{ section.id }}</td>
+        <td>{{ section.routeId }}</td>
+        <td>{{ section.name }}</td>
+        <td>{{ section.pdf }}</td>
+        <td>{{ section.offset }}</td>
+        <td>{{ section.max }}</td>
+        <td>{{ section.created }}</td>
+        <td>{{ section.updated }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

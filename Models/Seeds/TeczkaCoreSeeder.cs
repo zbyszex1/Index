@@ -170,6 +170,29 @@ namespace TeczkaCore.Models.Seeds
       return false;
     }
 
+    public bool SeedClasses()
+    {
+      var scopedFactory = _app.Services.GetService<IServiceScopeFactory>();
+      using (var scope = scopedFactory?.CreateScope())
+      {
+        var services = scope?.ServiceProvider;
+        if (services != null)
+        {
+          var service = scope?.ServiceProvider.GetService<SeedClass>();
+          if (service != null)
+          {
+            int result = service.SeedTable(_app);
+            if (result > 0)
+            {
+              _TeczkaCoreContext.SaveChanges();
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+
     public bool SeedPersons()
     {
       var scopedFactory = _app.Services.GetService<IServiceScopeFactory>();

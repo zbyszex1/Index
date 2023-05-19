@@ -26,23 +26,22 @@ export class IndexesService {
   }
 
   addPerson(person: Person)  {
-    return this.http.post<Person>(this.baseUrl + 'api/persons', person, this.tokenOptionsService.getOptions())
+    return this.http.post<Person>(this.baseUrl + 'api/persons', person)
       .pipe(map(result => {
+        console.log(result)
         return result;
       }));
   }
 
   doneIndexed(outData: Scan)  {
-    // const data = JSON.stringify({'Done': true});
-    console.log(outData);
-    return this.http.put<any>(this.baseUrl + 'api/available/'+outData.id, outData, this.tokenOptionsService.getOptions())
+    return this.http.put<any>(this.baseUrl + 'api/available/'+outData.id, outData)
       .pipe(map(result => {
         return result;
       }));
   }
 
   generate() {
-    return this.http.post<any>(this.baseUrl + 'api/generate', null, this.tokenOptionsService.getOptions())
+    return this.http.post<any>(this.baseUrl + 'api/generate', null)
       .pipe(map(result => {
         return result;
       }));

@@ -7,9 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using System.Linq;
-using Google.Protobuf.WellKnownTypes;
-using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using Org.BouncyCastle.Utilities.Net;
 
 namespace TeczkaCore.Controllers
 {
@@ -20,8 +19,6 @@ namespace TeczkaCore.Controllers
 
   public class AccountController : ControllerBase
   {
-    private readonly ILogger<WeatherForecastController> _logger;
-
     private readonly TeczkaCoreContext context;
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly IJwtProvider _jwtProvider;
@@ -32,9 +29,21 @@ namespace TeczkaCore.Controllers
       _passwordHasher = passwordHasher;
       _jwtProvider = jwtProvider;
     }
+    // ================================================================
     internal class Token
     {
-      public string serverToken { get; set; }
+      public string jwtToken { get; set; }
+      public string refreshToken { get; set; }
+    }
+
+    // ================================================================
+    private string ipAddress()
+    {
+      // get source ip address for the current request
+      if (Request.Headers.ContainsKey("X-Forwarded-For"))
+        return Request.Headers["X-Forwarded-For"];
+      else
+        return HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
     }
 
     // ================================================================
@@ -46,7 +55,7 @@ namespace TeczkaCore.Controllers
       {
         return BadRequest(ModelState);
       }
-
+      
       var user = await context.Users
         .Include(user => user.Role)
         .FirstOrDefaultAsync(user => user.Email == userLogin.Email);
@@ -64,9 +73,9 @@ namespace TeczkaCore.Controllers
           return BadRequest("Invalid username or password");
         }
       }
-
       Token token = new Token();
-      token.serverToken = _jwtProvider.GenerateJwtToken(user);
+      token.jwtToken = _jwtProvider.GenerateJwtToken(user);
+      token.refreshToken = _jwtProvider.GenerateRefreshJwtToken(user.Id);
       return Ok(token);
     }
 
@@ -80,7 +89,7 @@ namespace TeczkaCore.Controllers
         return BadRequest(ModelState);
       }
 
-      var role = await context.Roles.FirstOrDefaultAsync(r => r.Name == "Writer");
+      var role = await context.Roles.FirstOrDefaultAsync(r => r.Name == "Reader");
 
       int roleId = role != null ? role.Id : 1;
       var newUser = new User()
@@ -97,8 +106,38 @@ namespace TeczkaCore.Controllers
       await context.SaveChangesAsync();
 
       Token token = new Token();
-      token.serverToken = _jwtProvider.GenerateJwtToken(newUser);
+      token.jwtToken = _jwtProvider.GenerateJwtToken(newUser);
+      token.refreshToken = _jwtProvider.GenerateRefreshJwtToken(newUser.Id);
       return Ok(token);
+    }
+
+    // ================================================================
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public async Task<ActionResult> RefreshToken([FromBody] RefreshTokenRequest refresh)
+    {
+      if (!ModelState.IsValid || context == null || _passwordHasher == null || refresh == null)
+      {
+        return BadRequest(ModelState);
+      }
+
+      var refreshToken = await context.RefreshTokens.SingleOrDefaultAsync(t => 
+                          t.Token == refresh.RefreshToken &&
+                          t.UserId == refresh.UserId);
+
+      User user = context.Users
+        .Include(user => user.Role)
+        .FirstOrDefault(user => user.Id == refresh.UserId);
+      if (refreshToken == null || user == null || (refreshToken.Expires < DateTime.UtcNow))
+      {
+        return Unauthorized();
+      }
+
+      Token token = new Token();
+      token.jwtToken = _jwtProvider.GenerateJwtToken(user);
+      token.refreshToken = _jwtProvider.GenerateRefreshJwtToken(user.Id);
+      return Ok(token);
+
     }
 
     // ================================================================
@@ -136,7 +175,8 @@ namespace TeczkaCore.Controllers
         await context.SaveChangesAsync();
 
         Token token = new Token();
-        token.serverToken = _jwtProvider.GenerateJwtToken(user);
+        token.jwtToken = _jwtProvider.GenerateJwtToken(user);
+        token.refreshToken = _jwtProvider.GenerateRefreshJwtToken(user.Id);
         return Ok(token);
       }
       return BadRequest(ModelState);
@@ -173,7 +213,8 @@ namespace TeczkaCore.Controllers
       await context.SaveChangesAsync();
 
       Token token = new Token();
-      token.serverToken = _jwtProvider.GenerateJwtToken(user);
+      token.jwtToken = _jwtProvider.GenerateJwtToken(user);
+      token.refreshToken = _jwtProvider.GenerateRefreshJwtToken(user.Id);
       return Ok(token);
     }
   }

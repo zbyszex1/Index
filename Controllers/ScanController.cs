@@ -10,7 +10,6 @@ namespace TeczkaCore.Controllers
 {
   [ApiController]
   [Route("api/scans")]
-  //[Authorize(Roles = "Admin")]
   [Authorize(Roles = "Admin,Reader,Writer,Superviser")]
   public class ScanController : ControllerBase
   {
@@ -31,10 +30,67 @@ namespace TeczkaCore.Controllers
     {
       try
       {
-        var scans = _teczkacoreContext.Scans;
+        //var scans = _teczkacoreContext.Scans;
+        var scans = _teczkacoreContext.Sections.Join(
+          inner: _teczkacoreContext.Scans,
+          outerKeySelector: Section => Section.Id,
+          innerKeySelector: Scan => Scan.SectionId,
+          resultSelector: (sc, s) =>
+          new { s.Id, s.SectionId, Section = sc.Name, s.UserId, s.Page, s.Created, s.Updated }
+        )
+        .AsEnumerable()
+        .OrderBy(s => s.SectionId)
+        .ThenBy(s => s.Page);
         if (scans == null)
         {
           return BadRequest("Fail access to 'Scan' table");
+        }
+        return Ok(scans.ToArray());
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(ex.Message);
+      }
+    }
+
+    [HttpGet("cnt")]
+    [AllowAnonymous]
+    public ActionResult Get(Boolean any)
+    {
+      try
+      {
+        int count = _teczkacoreContext.Scans.Count();
+
+        return Ok(count);
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(ex.Message);
+      }
+    }
+
+    [HttpGet("pg")]
+    [AllowAnonymous]
+    public ActionResult<List<Scan>> Get(int Page, int PageSize)
+    {
+      try
+      {
+        var scans = _teczkacoreContext.Sections.Join(
+          inner: _teczkacoreContext.Scans,
+          outerKeySelector: Section => Section.Id,
+          innerKeySelector: Scan => Scan.SectionId,
+          resultSelector: (sc, s) =>
+          new { s.Id, s.SectionId, Section = sc.Name, s.UserId, s.Page,  s.Created, s.Updated }
+        )
+        .AsEnumerable()
+        .OrderBy(s => s.SectionId)
+        .ThenBy(s => s.Page)
+        .Skip(Page * PageSize)
+        .Take(PageSize);
+
+        if (scans == null)
+        {
+          return BadRequest("Fail access to 'Index' table");
         }
         return Ok(scans.ToArray());
       }

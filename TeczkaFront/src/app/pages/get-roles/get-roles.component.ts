@@ -19,9 +19,8 @@ export class GetRolesComponent {
     this.roles = null;
     this.alert = alertService;
     this.alert.clear();
-    http.get<Roles[]>(baseUrl + 'api/roles', tokenOptionsService.getOptions())
+    http.get<Roles[]>(baseUrl + 'api/roles')
       .subscribe(result => {
-        console.log(result);
         this.roles = result;
       }, error => {
         console.error(error)

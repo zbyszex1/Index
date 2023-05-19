@@ -17,6 +17,7 @@ namespace TeczkaCore.Models
     public List<Scan> Scans { get; set; } = new List<Scan>();
     public List<Person> Persons { get; set; } = new List<Person>();
     public List<Indeks> Indexes { get; set; } = new List<Indeks>();
+    public RefreshToken? RefreshToken { get; set; }
 
   }
 }

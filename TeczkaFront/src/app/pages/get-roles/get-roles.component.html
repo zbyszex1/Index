@@ -1,26 +1,28 @@
-<h1 id="tableLabel1">Teczka Roles</h1>
+<div class="container printable">
+  <h1 id="tableLabel1">Teczka: Roles</h1>
 
-<p>This component demonstrates fetching data from the MySQL server.</p>
+  <p>Przeglądanie tablic bazy danych MySQL</p>
 
-<p *ngIf="!roles"><em>Loading...</em></p>
+  <p *ngIf="!roles"><em>Loading...</em></p>
 
-<table class='table table-striped' aria-labelledby="tableLabel1" *ngIf="roles">
-  <thead>
-    <tr>
-      <th>Id</th>
-      <th>Name</th>
-      <th>Level</th>
-      <th>Created</th>
-      <th>Updated</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let role of roles">
-      <td>{{ role.id }}</td>
-      <td>{{ role.name }}</td>
-      <td>{{ role.level }}</td>
-      <td>{{ role.created }}</td>
-      <td>{{ role.updated }}</td>
-    </tr>
-  </tbody>
-</table>
+  <table class='table table-striped' aria-labelledby="tableLabel1" *ngIf="roles">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Level</th>
+        <th>Created</th>
+        <th>Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let role of roles">
+        <td>{{ role.id }}</td>
+        <td>{{ role.name }}</td>
+        <td>{{ role.level }}</td>
+        <td>{{ role.created }}</td>
+        <td>{{ role.updated }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

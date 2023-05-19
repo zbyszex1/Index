@@ -1,5 +1,6 @@
 export class Token {
-  serverToken: string = '';
+  jwtToken: string = '';
+  refreshToken: string = '';
 }
 
 export class UserToken {
@@ -7,4 +8,10 @@ export class UserToken {
   userId: number = 1;
   role?: string;
   token?: string;
+  // refreshtoken?: string;
+}
+
+export class RefreshToken {
+  refreshToken?: string;
+  userId: number = 1;
 }

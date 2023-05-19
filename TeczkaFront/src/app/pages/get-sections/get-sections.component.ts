@@ -19,9 +19,8 @@ export class GetSectionsComponent {
     this.sections = null;
     this.alert = alertService;
     this.alert.clear();
-    http.get<SectionsDetailed[]>(baseUrl + 'api/sections', tokenOptionsService.getOptions())
+    http.get<SectionsDetailed[]>(baseUrl + 'api/sections')
       .subscribe(result => {
-        console.log(result);
         this.sections = result;
         this.sections.forEach(element => {
           const i = element.pdf.lastIndexOf('/');

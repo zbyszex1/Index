@@ -14,7 +14,6 @@ namespace TeczkaCore.Entities
         public string Email { get; set; }
         [MaxLength(16)]
         public string? Phone { get; set; }
-        public DateTime DateOfBirth { get; set; }
         [MaxLength(64)]
         public string? Password { get; set; }
         [MaxLength(64)]

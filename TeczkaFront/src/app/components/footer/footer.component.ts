@@ -12,6 +12,7 @@ import { MessageService } from '@app/services/message.service';
 export class FooterComponent implements OnInit, OnDestroy {
 
   name: string;
+  role: string;
   loggedIn: boolean;
   tokenSubscription!: Subscription;
 
@@ -20,23 +21,29 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   ) {
     this.name = '';
+    this.role = '';
     this.loggedIn = false;
   }
 
   ngOnInit(): void {
+    this.userState();
     this.tokenSubscription = this.tokenOptionsService.onToken()
     .subscribe(token => {
-      this.name = this.tokenOptionsService.getUser();
-      this.loggedIn = this.tokenOptionsService.isLoggedIn();
-      console.log(this.tokenOptionsService.isLoggedIn())
-      console.log(this.tokenOptionsService.getUser())
-// this.name = (token == null || typeof token.name == "undefined") ? '' : token.name;
-      // this.loggedIn = this.name?.length > 0;
-  })
+      setTimeout( () => {
+        this.userState();
+      }, 250 );
+    })
   }
 
   ngOnDestroy(): void {
     this.tokenSubscription.unsubscribe();
   }
 
+  userState() {
+    this.name = this.tokenOptionsService.getUser();
+    this.role = this.tokenOptionsService.getRole();
+    this.loggedIn = this.tokenOptionsService.isLoggedIn();
+    console.log(this.name)
+    console.log(this.loggedIn)
+  }
 }

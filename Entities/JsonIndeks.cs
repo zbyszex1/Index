@@ -4,7 +4,10 @@ namespace TeczkaCore.Entities
 {
   public class JsonIndeks
   {
-    public string Name { get; set; } 
+    public string Name { get; set; }
+    public int personId { get; set; }
+    public int Count { get; set; }
+    public string Class { get; set; }
     public Unit[] Units { get; set; }
   }
 

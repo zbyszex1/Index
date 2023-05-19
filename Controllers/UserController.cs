@@ -29,8 +29,15 @@ namespace TeczkaCore.Controllers
         {
             try
             {
-                var users = _teczkacoreContext.Users.ToArray();
-                return Ok(users);
+              var users = _teczkacoreContext.Roles.Join(
+                inner: _teczkacoreContext.Users,
+                outerKeySelector: Role => Role.Id,
+                innerKeySelector: User => User.RoleId,
+                resultSelector: (r, u) =>
+                //new NewRecord(u.Id, u.Name, u.Email, u.Phone, RoleName = r.Name)
+                new { u.Id, u.Name, u.Email, u.Phone, u.TempPassword, u.PasswordHash, u.Created, u.Updated, RoleName = r.Name }
+              ).AsEnumerable().OrderBy(r => r.RoleName).ThenBy(u => u.Name);
+              return Ok(users.ToList());
             }
             catch (Exception ex)
             {
@@ -110,4 +117,6 @@ namespace TeczkaCore.Controllers
         }
 
     }
+
+  internal record NewRecord(int Id, string Name, string Email, string? Phone, string Item);
 }

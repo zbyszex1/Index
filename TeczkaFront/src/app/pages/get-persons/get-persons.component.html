@@ -1,25 +1,63 @@
-<h1 id="tableLabel1">Teczka Persons</h1>
-<p>This component demonstrates fetching data from the MySQL server.</p>
+<div class="container printable">
+  <h1 id="tableLabel1">Teczka: Persons</h1>
+  <p>Przeglądanie tablic bazy danych MySQL</p>
 
-<p *ngIf="!persons"><em>Loading...</em></p>
-
-<table class='table table-striped' aria-labelledby="tableLabel1" *ngIf="persons">
-  <thead>
-    <tr>
-      <th>Id</th>
-      <th>Last</th>
-      <th>First</th>
-      <th>Created</th>
-      <th>Updated</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let person of persons">
-      <td>{{ person.id }}</td>
-      <td>{{ person.last }}</td>
-      <td>{{ person.first }}</td>
-      <td>{{ person.created }}</td>
-      <td>{{ person.updated }}</td>
-    </tr>
-  </tbody>
-</table>
+  <p *ngIf="!persons"><em>Loading...</em></p>
+  <div class="input-group mb-3">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Wyszukaj nazwiska lub imiona"
+      [(ngModel)]="last"
+    />
+    <div class="input-group-append">
+      <button
+        class="btn btn-primary" type="button" style="margin-left: 20px;" (click)="searchLast()">
+        Wyszukaj
+      </button>
+    </div>
+  </div>
+  <div class="input-group mb-3">
+    <pagination-controls
+      previousLabel=""
+      nextLabel=""
+      (pageChange)="handlePageChange($event)">
+    </pagination-controls>
+    <div style="margin-left:30px;">
+      Ilość wierszy na stronie:
+      <select (change)="handlePageSizeChange($event)">
+        <option *ngFor="let size of pageSizes" [ngValue]="size">
+          {{ size }}
+        </option>
+      </select>
+    </div>
+    <div style="margin-left:30px;">
+      Ilość rekordów: {{ count }}
+    </div>
+  <!-- responsive="true" -->
+  <table class='table table-striped' aria-labelledby="tableLabel1" *ngIf="persons">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Last</th>
+        <th>First</th>
+        <th>User ID</th>
+        <th>Class</th>
+        <th>Created</th>
+        <th>Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let person of persons  | paginate: {
+        itemsPerPage: pageSize, currentPage: page, totalItems: count }">
+        <td>{{ person.id }}</td>
+        <td>{{ person.last }}</td>
+        <td>{{ person.first }}</td>
+        <td>{{ person.userId }}</td>
+        <td>{{ person.class }}</td>
+        <td>{{ person.created }}</td>
+        <td>{{ person.updated }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

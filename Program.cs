@@ -112,13 +112,22 @@ builder.Services.AddTransient<SeedUser>();
 builder.Services.AddTransient<SeedArticle>();
 builder.Services.AddTransient<SeedSection>();
 builder.Services.AddTransient<SeedScan>();
+builder.Services.AddTransient<SeedClass>();
 builder.Services.AddTransient<SeedPerson>();
 builder.Services.AddTransient<IMailService, MailService>();
 builder.Services.AddScoped<TeczkaCoreSeeder>();
 builder.Services.AddSpaStaticFiles(configuration =>
 {
-  configuration.RootPath = "TeczkaFront/dist";
+  configuration.RootPath = "wwwroot";
 });
+if (!builder.Environment.IsDevelopment())
+{
+  builder.Services.AddHttpsRedirection(options =>
+  {
+    options.RedirectStatusCode = (int)HttpStatusCode.PermanentRedirect;
+    options.HttpsPort = 443;
+  });
+}
 
 WebApplication app = builder.Build();
 using (var scope = app.Services.CreateScope())
@@ -131,8 +140,10 @@ using (var scope = app.Services.CreateScope())
   seederService?.SeedArticles();
   seederService?.SeedSections();
   seederService?.SeedScans();
+  seederService?.SeedClasses();
   seederService?.SeedPersons();
 
+  //SeedRole.Initialize(services);
 }
 
 if (app.Environment.IsDevelopment())
@@ -147,13 +158,45 @@ if (app.Environment.IsDevelopment())
     RequestPath = new PathString("/StaticFile")
   });
 
+  //    //app.UseFileServer(new FileServerOptions
+  //    //{
+  //    //    FileProvider = new PhysicalFileProvider(
+  //    //    Path.Combine(Directory.GetCurrentDirectory(), @"StaticFile")),
+  //    //    RequestPath = "/StaticFile",
+  //    //    EnableDefaultFiles = true
+  //    //});
 }
 else
 {
+  app.Use(async (context, next) =>
+  {
+    await next();
+
+    if (context.Response.StatusCode == 404 &&
+        !Path.HasExtension(context.Request.Path.Value) &&
+        !context.Request.Path.Value.StartsWith("/api/"))
+    {
+      context.Request.Path = "/";
+      await next();
+    }
+  });
   app.UseDefaultFiles();
   app.UseStaticFiles();
   app.UseSpaStaticFiles();
 }
+//app.UseSpa(spa =>
+//{
+//  // To learn more about options for serving an Angular SPA from ASP.NET Core,
+//  // see https://go.microsoft.com/fwlink/?linkid=864501
+
+//  spa.Options.SourcePath = "TeczkaFront";
+
+//  if (app.Environment.IsDevelopment())
+//  {
+//    spa.UseAngularCliServer(npmScript: "start");
+//    //spa.UseProxyToSpaDevelopmentServer("http://localhost:4200");
+//  }
+//});
 
 //app.UseHttpsRedirection();
 

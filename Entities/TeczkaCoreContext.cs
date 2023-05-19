@@ -14,9 +14,11 @@ public class TeczkaCoreContext : DbContext
   public DbSet<User> Users { get; set; }
   public DbSet<Article> Articles { get; set; }
   public DbSet<Section> Sections { get; set; }
+  public DbSet<Class> Classes { get; set; }
   public DbSet<Person> Persons { get; set; }
   public DbSet<Scan> Scans { get; set; }
   public DbSet<Indeks> Indexes { get; set; }
+  public DbSet<RefreshToken> RefreshTokens { get; set; }
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
@@ -65,6 +67,24 @@ public class TeczkaCoreContext : DbContext
         .HasForeignKey("RoleId")
         .HasConstraintName("FK_User_RoleId")
         .OnDelete(DeleteBehavior.NoAction);
+    });
+
+    modelBuilder.Entity<RefreshToken>(eb =>
+    {
+      eb.HasIndex(c => c.Token);
+      eb.Property(c => c.Token)
+      .IsRequired()
+      .HasMaxLength(512)
+      .HasDefaultValue("");
+      eb.Property(c => c.Expires)
+      .IsRequired();
+      //.HasDefaultValue(new DateTime());
+      eb.HasOne<User>(t => t.User)
+          .WithOne(u => u.RefreshToken)
+          //.HasForeignKey<RefreshToken>(t => t.UserId)
+          .HasForeignKey("RefreshToken")
+          .HasConstraintName("FK_RefreshToken_UserId")
+          .OnDelete(DeleteBehavior.NoAction);
     });
 
     modelBuilder.Entity<Article>(eb =>
@@ -118,6 +138,15 @@ public class TeczkaCoreContext : DbContext
         .OnDelete(DeleteBehavior.NoAction);
     });
 
+    modelBuilder.Entity<Class>(eb =>
+    {
+      eb.HasIndex(c => c.Name);
+      eb.Property(c => c.Name)
+      .IsRequired()
+      .HasMaxLength(2)
+      .HasDefaultValue("PZ");
+    });
+
     modelBuilder.Entity<Person>(eb =>
     {
       eb.HasIndex(p => p.Last);
@@ -134,6 +163,14 @@ public class TeczkaCoreContext : DbContext
       .HasDefaultValue(String.Empty);
       eb.HasIndex(p => new { p.Last, p.First })
       .IsUnique();
+      eb.HasOne<Class>(p => p.Class)
+        .WithMany(c => c.Persons)
+        .HasForeignKey(p => p.ClassId)
+        .HasForeignKey("ClassId")
+        .HasConstraintName("FK_Person_ClassId")
+        .OnDelete(DeleteBehavior.NoAction);
+      eb.Property(p => p.ClassId)
+      .HasDefaultValue(1);
     });
 
     modelBuilder.Entity<Scan>(eb =>

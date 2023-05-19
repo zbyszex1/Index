@@ -23,6 +23,7 @@ namespace TeczkaCore.Controllers
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public ActionResult<List<Role>> Get()
     {
       try

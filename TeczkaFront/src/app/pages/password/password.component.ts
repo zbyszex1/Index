@@ -52,17 +52,14 @@ export class PasswordComponent implements OnInit, OnDestroy {
         }
 
         this.loading = true;
-        console.log(this.form.value);
         this.accountService.password(this.form.value)
             .pipe(first())
             .subscribe({
                 next: (result: any) => {
-                    console.log(result);
                     const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
                     this.router.navigateByUrl(returnUrl);
                           },
                 error: error => {
-                    console.log(error);
                     this.alertService.error(error.error);
                     this.loading = false;
                 }
