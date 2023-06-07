@@ -3,6 +3,17 @@
   <p>Przeglądanie tablic bazy danych MySQL</p>
 
   <p *ngIf="!persons"><em>Loading...</em></p>
+
+  <div *ngIf="groups">
+    <div>Liczebność kategorii: 
+      <span *ngFor="let group of groups; let i = index">
+        <span *ngIf="i>0">, </span>
+        <span>{{group.class}}: </span>
+        <span>{{group.count}}</span>
+      </span>
+    </div>
+    <br/>
+  </div>
   <div class="input-group mb-3">
     <input
       type="text"
@@ -39,24 +50,20 @@
     <thead>
       <tr>
         <th>Id</th>
+        <th>Class</th>
         <th>Last</th>
         <th>First</th>
         <th>User ID</th>
-        <th>Class</th>
-        <th>Created</th>
-        <th>Updated</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let person of persons  | paginate: {
         itemsPerPage: pageSize, currentPage: page, totalItems: count }">
         <td>{{ person.id }}</td>
+        <td>{{ person.class }}</td>
         <td>{{ person.last }}</td>
         <td>{{ person.first }}</td>
         <td>{{ person.userId }}</td>
-        <td>{{ person.class }}</td>
-        <td>{{ person.created }}</td>
-        <td>{{ person.updated }}</td>
       </tr>
     </tbody>
   </table>

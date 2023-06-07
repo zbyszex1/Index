@@ -18,6 +18,9 @@ public class TeczkaCoreContext : DbContext
   public DbSet<Person> Persons { get; set; }
   public DbSet<Scan> Scans { get; set; }
   public DbSet<Indeks> Indexes { get; set; }
+  public DbSet<UserRole> UsersRoles { get; set; }
+  public DbSet<PersonClass> PersonsClasses { get; set; }
+  public DbSet<PersonGroup> PersonsGroups { get; set; }
   public DbSet<RefreshToken> RefreshTokens { get; set; }
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -229,6 +232,21 @@ public class TeczkaCoreContext : DbContext
           .HasForeignKey("PersonId")
           .HasConstraintName("FK_Index_PersonId")
           .OnDelete(DeleteBehavior.NoAction);
+    });
+    modelBuilder.Entity<UserRole>(eb =>
+    {
+      eb.HasNoKey();
+      eb.Metadata.SetIsTableExcludedFromMigrations(true);
+    });
+    modelBuilder.Entity<PersonClass>(eb =>
+    {
+      eb.HasNoKey();
+      eb.Metadata.SetIsTableExcludedFromMigrations(true);
+    });
+    modelBuilder.Entity<PersonGroup>(eb =>
+    {
+      eb.HasNoKey();
+      eb.Metadata.SetIsTableExcludedFromMigrations(true);
     });
 
   }

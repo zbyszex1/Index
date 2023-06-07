@@ -32,13 +32,14 @@ namespace TeczkaCore.Controllers
     {
       try
       {
-        var persons = _teczkacoreContext.Classes.Join(
-          inner: _teczkacoreContext.Persons,
-          outerKeySelector: Class => Class.Id,
-          innerKeySelector: Person => Person.ClassId,
-          resultSelector: (c, p) =>
-          new { p.Id, p.Last, p.First, p.UserId, ClassName = c.Name, p.Created, p.Updated }
-        ).AsEnumerable().OrderBy(c => c.ClassName).ThenBy(p => p.Last).ThenBy(p => p.First);
+        var persons = _teczkacoreContext.PersonsClasses.ToList();
+        //var persons = _teczkacoreContext.Classes.Join(
+        //  inner: _teczkacoreContext.Persons,
+        //  outerKeySelector: Class => Class.Id,
+        //  innerKeySelector: Person => Person.ClassId,
+        //  resultSelector: (c, p) =>
+        //  new { p.Id, p.Last, p.First, p.UserId, ClassName = c.Name, p.Created, p.Updated }
+        //).AsEnumerable().OrderBy(c => c.ClassName).ThenBy(p => p.Last).ThenBy(p => p.First);
         return Ok(persons.ToList());
       }
       catch (Exception ex)
@@ -63,26 +64,46 @@ namespace TeczkaCore.Controllers
       }
     }
 
+    [HttpGet("grp")]
+    [AllowAnonymous]
+    public ActionResult Get(string any)
+    {
+      try
+      {
+        var personsGroups = _teczkacoreContext.PersonsGroups;
+
+        return Ok(personsGroups.ToList());
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(ex.Message);
+      }
+    }
+
     [HttpGet("pg")]
     [AllowAnonymous]
     public ActionResult<List<Person>> Get(string? filter, int Page, int PageSize)
     {
       try
       {
-        var persons = _teczkacoreContext.Classes.Join(
-          inner: _teczkacoreContext.Persons,
-          outerKeySelector: Class => Class.Id,
-          innerKeySelector: Person => Person.ClassId,
-          resultSelector: (c, p) =>
-          new { p.Id, p.Last, p.First, p.UserId, Class = c.Name, p.Created, p.Updated }
-        )
-        .Where(p=> filter!=null ? (p.Last.Contains(filter) || p.First.Contains(filter)) :true)
-        .AsEnumerable()
-        .OrderBy(p => p.Last)
-        .ThenBy(p => p.First)
+        var persons = _teczkacoreContext.PersonsClasses
+        .Where(p => filter != null ? (p.Last.Contains(filter) || p.First.Contains(filter)) : true)
         .Skip(Page * PageSize)
         .Take(PageSize);
-        
+        //var persons = _teczkacoreContext.Classes.Join(
+        //  inner: _teczkacoreContext.Persons,
+        //  outerKeySelector: Class => Class.Id,
+        //  innerKeySelector: Person => Person.ClassId,
+        //  resultSelector: (c, p) =>
+        //  new { p.Id, p.Last, p.First, p.UserId, Class = c.Name, p.Created, p.Updated }
+        //)
+        //.Where(p=> filter!=null ? (p.Last.Contains(filter) || p.First.Contains(filter)) :true)
+        //.AsEnumerable()
+        //.OrderBy(p => p.Last)
+        //.ThenBy(p => p.First)
+        //.Skip(Page * PageSize)
+        //.Take(PageSize);
+
         return Ok(persons.ToList());
       }
       catch (Exception ex)

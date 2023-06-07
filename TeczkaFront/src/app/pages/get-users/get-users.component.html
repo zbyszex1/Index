@@ -7,23 +7,22 @@
     <thead>
       <tr>
         <th>Id</th>
-        <th>RoleName</th>
+        <th>Role</th>
+        <th>Level</th>
         <th>Name</th>
         <th>Email</th>
         <th>Phone</th>
-        <th>Password</th>
-        <th>Updated</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let user of users">
         <td>{{ user.id }}</td>
-        <td>{{ user.roleName }}</td>
+        <td>{{ user.role }}</td>
+        <td>{{ user.level }}</td>
         <td>{{ user.name }}</td>
         <td>{{ user.email }}</td>
         <td>{{ user.phone }}</td>
-        <td>{{ user.passwordHash==null ? user.tempPassword : 'encrypted' }}</td>
-        <td>{{ (user.updated==null ? user.created : user.updated).substring(0,10) }}</td>
       </tr>
     </tbody>
   </table>

@@ -29,6 +29,12 @@ export class PaginationService {
     return this.http.get<any>(this.baseUrl + 'api/persons/cnt', { params });
   }
 
+  getPersonsGroup(): Observable<any> {
+    let params: any = {};
+    params['any'] = '0';
+    return this.http.get<any>(this.baseUrl + 'api/persons/grp', { params });
+  }
+
   getPersons(params: any): Observable<any> {
     return this.http.get<any>(this.baseUrl + 'api/persons/pg', { params });
   }

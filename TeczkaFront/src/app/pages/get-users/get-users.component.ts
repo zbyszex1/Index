@@ -64,12 +64,13 @@ export class GetUsersComponent implements OnInit, OnDestroy {
 
 interface UsersDetailed {
   id: number;
-  roleName: string;
   name: string;
   email: string;
   phone: string;
-  tempPassword: string;
-  passwordHash: string;
-  created: string;
-  updated: string;
+  level: number;
+  role: string;
+  // tempPassword: string;
+  // passwordHash: string;
+  // created: string;
+  // updated: string;
 }

@@ -10,6 +10,7 @@ import { PaginationService } from './../../services/pagination.service';
   styleUrls: ['./get-persons.component.css']
 })
 export class GetPersonsComponent implements OnInit {
+  public groups: PersonsGroups[] | null;
   public persons: PersonsDetailed[] | null;
   public alert: AlertService;
   public page: number;
@@ -25,6 +26,7 @@ export class GetPersonsComponent implements OnInit {
               @Inject('BASE_URL') baseUrl: string,
               private alertService: AlertService,
               private paginationService: PaginationService) {
+    this.groups = null;
     this.persons = null;
     this.alert = alertService;
     this.page = 1;
@@ -34,6 +36,14 @@ export class GetPersonsComponent implements OnInit {
     this.pageSizes = [20, 50, 100];
     // this.responsive = true;
     this.alert.clear();
+    this.paginationService.getPersonsGroup()
+    .subscribe(
+      response => {
+        this.groups = response;
+      },
+      error => {
+        console.error(error);
+      });
     this.paginationService.getPersonsCount()
     .subscribe(
       response => {
@@ -42,7 +52,7 @@ export class GetPersonsComponent implements OnInit {
       error => {
         console.error(error);
       });
-  }
+    }
 
   ngOnInit(): void {
     this.retrievePersons();
@@ -84,10 +94,13 @@ export class GetPersonsComponent implements OnInit {
 
 interface PersonsDetailed {
   id: number;
+  class: string;
   last: string;
   first: string;
   userId: number;
+}
+
+interface PersonsGroups {
   class: string;
-  created: string;
-  updated: string;
+  count: number;
 }
