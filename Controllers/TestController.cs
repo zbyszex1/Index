@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeczkaCore.Models.Interfaces;
+using TeczkaCore.Services;
 
 namespace TeczkaCore.Controllers
 {
@@ -11,11 +12,13 @@ namespace TeczkaCore.Controllers
   {
     private readonly TeczkaCoreContext _teczkacoreContext;
     private readonly ILogger<TestController> _logger;
+    private readonly IBleBle _bleBle;
 
-    public TestController(TeczkaCoreContext teczkacoreContext, ILogger<TestController> logger)
+    public TestController(TeczkaCoreContext teczkacoreContext, ILogger<TestController> logger, IBleBle bleBle)
     {
       _teczkacoreContext = teczkacoreContext;
       _logger = logger;
+      _bleBle = bleBle;
     }
 
     [HttpGet]
@@ -81,6 +84,9 @@ namespace TeczkaCore.Controllers
           return Ok(result);
           break;
         default:
+          string result2 = _bleBle.Add(table);
+          object[] result3 = { result2 };
+          return Ok(result3);
           break;
       }
       return BadRequest("Unexpected table name");

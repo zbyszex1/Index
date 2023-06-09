@@ -67,6 +67,9 @@ builder.Services.AddDbContext<TeczkaCoreContext>(
 #if MOTION
   option => option.UseMySQL(builder.Configuration.GetConnectionString("InMotionConnectionString"))
 #endif
+#if AZURE
+  option => option.UseMySQL(builder.Configuration.GetConnectionString("AzureConnectionString"))
+#endif
 );
 
 // Add services to the container.
@@ -116,6 +119,7 @@ builder.Services.AddTransient<SeedClass>();
 builder.Services.AddTransient<SeedPerson>();
 builder.Services.AddTransient<IMailService, MailService>();
 builder.Services.AddScoped<TeczkaCoreSeeder>();
+builder.Services.AddSingleton<IBleBle, BleBle>();
 builder.Services.AddSpaStaticFiles(configuration =>
 {
   configuration.RootPath = "wwwroot";
